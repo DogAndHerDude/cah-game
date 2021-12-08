@@ -1,0 +1,8 @@
+export enum RoomEvents {
+  CONFIG_UPDATE = 'CONFIG_UPDATE',
+  NEW_USER = 'NEW_USER',
+  USER_LEAVE = 'NEW_USER',
+  START_GAME = 'START_GAME',
+  END_GAME = 'END_GAME',
+  CLOSE_ROOM = 'CLOSE_ROOM',
+}
