@@ -1,19 +1,17 @@
 import { Server } from 'socket.io';
 import { Injectable } from '@nestjs/common';
 import { CardService } from '../Cards/CardService';
-import { UserService } from '../User/UserService';
 import { Room } from '../Room/Room';
 import { User } from '../User/User';
-import { RoomEvents } from '../Room/RoomEvents';
+import { InternalRoomEvents } from '../Room/RoomEvents';
+import { RoomNotFoundError } from './Errors/RoomNotFoundError';
+import { UserInRoomError } from './Errors/UserInRoomError';
 
 @Injectable()
 export class RoomService {
   private readonly rooms = new Map<string, Room>();
 
-  constructor(
-    private readonly userService: UserService,
-    private readonly cardService: CardService,
-  ) {}
+  constructor(private readonly cardService: CardService) {}
 
   public listRooms(): IterableIterator<Room> {
     return this.rooms.values();
@@ -21,6 +19,16 @@ export class RoomService {
 
   public getRoom(roomID: string): Room | undefined {
     return this.rooms.get(roomID);
+  }
+
+  public getRoomByUserID(userID: string): Room | undefined {
+    return Array.from(this.listRooms()).find((room) => {
+      const roomUser = room
+        .listUsers()
+        .find((roomUser) => roomUser.user.id === userID);
+
+      return !!roomUser;
+    });
   }
 
   public createRoom(user: User, server: Server): Room {
@@ -36,8 +44,47 @@ export class RoomService {
     this.rooms.delete(roomID);
   }
 
+  public addUser(user: User, roomID: string, spectator: boolean): Room {
+    const room = this.getRoom(roomID);
+
+    if (!room) {
+      throw new RoomNotFoundError();
+    }
+
+    if (!!this.getRoomByUserID(user.id)) {
+      throw new UserInRoomError();
+    }
+
+    room.addUser(user, spectator);
+
+    return room;
+  }
+
+  public removeUser({
+    userID,
+    roomID,
+  }: {
+    userID: string;
+    roomID?: string;
+  }): void {
+    let room: Room | undefined;
+
+    if (roomID) {
+      room = this.getRoom(roomID);
+    } else {
+      room = this.getRoomByUserID(userID);
+    }
+
+    if (!room) {
+      return;
+    }
+
+    room.removeUser(userID);
+  }
+
   private handleOutgoingRoomEvents(room: Room): void {
-    room.on(RoomEvents.CLOSE_ROOM, this.destroyRoom);
+    room.on(InternalRoomEvents.ROOM_CLOSED, this.destroyRoom);
+    room.on(InternalRoomEvents.USER_LEAVE, this.removeUser);
   }
 
   private destroyRoom = (roomID: string): void => {

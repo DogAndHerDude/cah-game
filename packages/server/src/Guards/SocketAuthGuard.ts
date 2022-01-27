@@ -1,6 +1,4 @@
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
-import { Reflector } from '@nestjs/core';
-import { WsException } from '@nestjs/websockets';
 import { AuthService } from '../AuthService/AuthService';
 import { WsInvalidCredentials } from './WsInvalidCredentials';
 import { WsNotAuthorized } from './WsNotAuthorized';

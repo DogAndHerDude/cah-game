@@ -1,7 +1,8 @@
 import { WsException } from '@nestjs/websockets';
+import { RoomNotFoundError } from './RoomNotFoundError';
 
 export class WsRoomNotFoundError extends WsException {
-  public static message = 'Room not found';
+  public static message = RoomNotFoundError.message;
 
   constructor() {
     super(WsRoomNotFoundError.message);

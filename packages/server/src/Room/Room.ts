@@ -12,9 +12,10 @@ import {
 import { User } from '../User/User';
 import { RoomUser } from './RoomUser';
 import { CardService } from '../Cards/CardService';
-import { RoomEvents } from './RoomEvents';
+import { PublicRoomEvents } from './RoomEvents';
 import { IBasicRoomDetails } from './IRoomBasicDetails';
 import { IRoomDetails } from './IRoomDetails';
+import { InternalRoomEvents } from './RoomEvents';
 
 export class Room extends EventEmitter {
   public static MAX_CARDS = 6;
@@ -32,6 +33,7 @@ export class Room extends EventEmitter {
   ) {
     super();
     this.roomOwner = new RoomUser(user, false, user.socket);
+
     user.socket.join(this.roomID);
     this.users.push(this.roomOwner);
     this.handleIncomingRoomEvents(user.socket);
@@ -42,35 +44,27 @@ export class Room extends EventEmitter {
   }
 
   public addUser(user: User, spectator: boolean): void {
-    if (!this.roomOwner) {
-      this.roomOwner = new RoomUser(user, false, user.socket);
-      user.socket.join(this.roomID);
-      // socket = socket.join(this.roomID);
-      this.users.push(this.roomOwner);
-      this.handleIncomingRoomEvents(user.socket);
-      return;
-    }
-
     if (this.userExists(user.id)) {
       // throw error users already exists
     }
 
     user.socket.join(this.roomID);
+    this.handleIncomingRoomEvents(user.socket);
     this.users.push(new RoomUser(user, spectator, user.socket));
-    this.socketServer.in(this.roomID).emit(RoomEvents.NEW_USER, {
+    this.socketServer.in(this.roomID).emit(PublicRoomEvents.NEW_USER, {
       userID: user.id,
       name: user.name,
     });
-    this.socketServer.to(user.socket.id).emit(RoomEvents.CONFIG_UPDATE, {
+    this.socketServer.to(user.socket.id).emit(PublicRoomEvents.CONFIG_UPDATE, {
       gameConfig: this.gameConfig,
     });
+    // TODO: emit updated room details with new player count
   }
 
   public removeUser(userID: string): void {
+    console.log('Bruh');
     if (this.users.length === 1) {
-      // Cleanup socket listeners
-      // Destroy room
-      this.emit(RoomEvents.CLOSE_ROOM, this.roomID);
+      this.emit(InternalRoomEvents.ROOM_CLOSED, this.roomID);
     }
 
     if (userID === this.roomOwner.user.id) {
@@ -161,7 +155,7 @@ export class Room extends EventEmitter {
 
   private handleIncomingRoomEvents(socket: Socket): void {
     socket.on(
-      RoomEvents.CONFIG_UPDATE,
+      PublicRoomEvents.CONFIG_UPDATE,
       (data: Record<keyof IGameConfig, any>) => {
         // validate if owner
         Object.keys(data).forEach((key) =>
@@ -172,13 +166,19 @@ export class Room extends EventEmitter {
         );
         this.socketServer
           .in(this.roomID)
-          .emit(RoomEvents.CONFIG_UPDATE, this.gameConfig);
+          .emit(PublicRoomEvents.CONFIG_UPDATE, this.gameConfig);
       },
     );
-    socket.on(RoomEvents.START_GAME, () => {
+    socket.on(PublicRoomEvents.START_GAME, () => {
       // validate if owner
       // handle thrown error with error response
       this.startGame();
+    });
+    socket.on(PublicRoomEvents.USER_LEAVE, () => {
+      this.emit(InternalRoomEvents.USER_LEAVE, {
+        userID: (socket as any).decoded.id,
+        roomID: this.roomID,
+      });
     });
   }
 

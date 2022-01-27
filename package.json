@@ -25,5 +25,8 @@
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
+  },
+  "dependencies": {
+    "class-validator": "^0.13.2"
   }
 }

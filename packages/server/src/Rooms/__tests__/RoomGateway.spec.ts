@@ -12,6 +12,8 @@ import { SocketClient } from '../../../test/SocketClient';
 import { RoomGatewaySocketErrors } from '../RoomGatewayErrors';
 import { WsResponseCreateRoom } from '../DTO/WsResponseCreateRoom';
 import { IRoomDetails } from '../../Room/IRoomDetails';
+import { WsResponseListRooms } from '../DTO/WsListRoomsResponse';
+import { Room } from '../../Room/Room';
 
 type UserServiceSpy = {
   createUser: jest.SpyInstance<ReturnType<UserService['createUser']>>;
@@ -19,10 +21,23 @@ type UserServiceSpy = {
   removeUser: jest.SpyInstance<ReturnType<UserService['removeUser']>>;
 };
 
+type RoomServiceSpy = {
+  getRoomsByUserID: jest.SpyInstance<
+    ReturnType<RoomService['getRoomsByUserID']>
+  >;
+};
+
+type RoomSpy = {
+  removeUser: jest.SpyInstance<ReturnType<Room['removeUser']>>;
+};
+
 describe('RoomGateway', () => {
   let app: INestApplication;
   let userService: UserService;
+  let roomService: RoomService;
   let userServiceSpy: UserServiceSpy;
+  let roomServiceSpy: RoomServiceSpy;
+  let roomSpy: RoomSpy;
 
   beforeEach(async () => {
     const testingModule = await Test.createTestingModule({
@@ -30,17 +45,26 @@ describe('RoomGateway', () => {
       providers: [RoomGateway, RoomService],
     }).compile();
     userService = testingModule.get(UserService);
+    roomService = testingModule.get(RoomService);
     app = await testingModule.createNestApplication<INestApplication>();
     userServiceSpy = {
       createUser: jest.spyOn(userService, 'createUser'),
       getUser: jest.spyOn(userService, 'getUser'),
       removeUser: jest.spyOn(userService, 'removeUser'),
     };
+    roomServiceSpy = {
+      getRoomsByUserID: jest.spyOn(roomService, 'getRoomsByUserID'),
+    };
+    roomSpy = {
+      removeUser: jest.spyOn(Room.prototype, 'removeUser'),
+    };
 
     await app.listen(3000);
   });
 
-  afterEach(() => app.close());
+  afterEach(() => {
+    app.close();
+  });
 
   describe('handleConnection', () => {
     it('Should return an error when no name is given', async () => {
@@ -129,13 +153,15 @@ describe('RoomGateway', () => {
       // push to the end of the stack while waiting for the handleDisconnect to complete
       setTimeout(() => {
         expect(userServiceSpy.createUser).toHaveBeenCalled();
+        expect(roomServiceSpy.getRoomsByUserID).toHaveBeenCalled();
+        expect(roomSpy.removeUser).toHaveBeenCalledTimes(1);
         expect(userServiceSpy.removeUser).toHaveBeenCalled();
       }, 0);
     });
   });
 
   describe('createRoom', () => {
-    it('Should create a room and return its details', async () => {
+    it('Should create a room and return its details & LIST_ROOMS event', async () => {
       const client = new SocketClient({
         transports: ['websocket'],
         query: {
@@ -146,9 +172,16 @@ describe('RoomGateway', () => {
       await client.onEvent(RoomGatewayEvents.AUTHENTICATED);
       client.emit(RoomGatewayEvents.CREATE_ROOM);
 
-      const response = await client.onEvent<WsResponseCreateRoom['data']>(
+      const listRooms = client.onEvent<WsResponseListRooms['data']>(
+        RoomGatewayEvents.LIST_ROOMS,
+      );
+      const roomCreated = client.onEvent<WsResponseCreateRoom['data']>(
         RoomGatewayEvents.ROOM_CREATED,
       );
+      const [listRoomsResponse, response] = await Promise.all([
+        listRooms,
+        roomCreated,
+      ]);
 
       client.disconnect();
       expect(response).toStrictEqual(
@@ -161,10 +194,13 @@ describe('RoomGateway', () => {
           users: expect.any(Array),
         }),
       );
+      expect(listRoomsResponse).toHaveLength(1);
     });
   });
 
-  // TODO: listRooms
+  // describe('listRooms', async () => {
+  //   it('Lists all available rooms on request');
+  // });
 
   // TODO: joinRoom
 });

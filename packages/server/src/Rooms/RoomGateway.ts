@@ -22,6 +22,11 @@ import { WsInvalidCredentials } from '../Guards/WsInvalidCredentials';
 import { WsRoomNotFoundError } from './Errors/WsRoomNotFoundError';
 import { WsResponseCreateRoom } from './DTO/WsResponseCreateRoom';
 import { WsUserNotFoundError } from './Errors/WsUserNotFoundError';
+import { WsResponseListRooms } from './DTO/WsListRoomsResponse';
+import { JoinRoomDTO } from './DTO/JoinRoomDTO';
+import { RoomNotFoundError } from './Errors/RoomNotFoundError';
+import { UserInRoomError } from './Errors/UserInRoomError';
+import { WsUserInRoomError } from './Errors/WsUserInRoomError';
 
 @WebSocketGateway({ transports: ['websocket'] })
 export class RoomGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -75,7 +80,12 @@ export class RoomGateway implements OnGatewayConnection, OnGatewayDisconnect {
           throw new WsInvalidCredentials();
         }
 
-        this.userService.removeUser(decoded.id);
+        // TODO: Remove user from room
+        // const userRooms = this.roomService.getRoomByUserID(decoded.id);
+        // userRooms.forEach((room) => room.removeUser(decoded.id));
+        // this.userService.removeUser(decoded.id);
+
+        this.roomService.removeUser({ userID: decoded.id });
       } catch (error) {
         if (error instanceof WsInvalidCredentials) {
           client.emit(RoomGatewaySocketErrors.INVALID_CREDENTIALS, {
@@ -97,14 +107,20 @@ export class RoomGateway implements OnGatewayConnection, OnGatewayDisconnect {
       throw new WsUserNotFoundError();
     }
 
-    const room = this.roomService.createRoom(user, this.server);
+    // TODO: check if user is in a a room already
 
+    const room = this.roomService.createRoom(user, this.server);
+    const { event: globalListRoomsEvent, data: globalListRoomsData } =
+      this.listRooms();
+
+    // Let every client know that a new room as been created with the following data
+    socket.emit(globalListRoomsEvent, globalListRoomsData);
     return new WsResponseCreateRoom(room);
   }
 
   @UseGuards(SocketAuthGuard)
-  @SubscribeMessage(RoomGatewayEvents.CREATE_ROOM)
-  public listRooms(): WsResponse<any> {
+  @SubscribeMessage(RoomGatewayEvents.LIST_ROOMS)
+  public listRooms(): WsResponseListRooms {
     return {
       event: RoomGatewayEvents.LIST_ROOMS,
       data: Array.from(this.roomService.listRooms()).map((room) => {
@@ -120,27 +136,38 @@ export class RoomGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage(RoomGatewayEvents.JOIN_ROOM)
   public joinRoom(
     @ConnectedSocket() socket: Socket,
-    @MessageBody() data: any,
+    @MessageBody() data: JoinRoomDTO,
   ): WsResponse<unknown> {
-    const room = this.roomService.getRoom(data.roomID);
     const user = this.userService.getUser(
       socket.handshake.query.userID as string,
     );
-
-    if (!room) {
-      throw new WsRoomNotFoundError();
-    }
 
     if (!user) {
       throw new WsException('User not found');
     }
 
-    room.addUser(user, data.spectator);
+    try {
+      const room = this.roomService.addUser(user, data.roomID, data.spectator);
 
-    // return room data such as users, etc
-    return {
-      event: RoomGatewayEvents.ROOM_JOINED,
-      data: room.getRoomDetails(),
-    };
+      // return room data such as users, etc
+      return {
+        event: RoomGatewayEvents.ROOM_JOINED,
+        data: room.getRoomDetails(),
+      };
+    } catch (error) {
+      if (error instanceof RoomNotFoundError) {
+        throw new WsRoomNotFoundError();
+      }
+
+      if (error instanceof UserInRoomError) {
+        throw new WsUserInRoomError();
+      }
+
+      throw new WsException(error.message);
+    }
   }
+
+  // TODO: Listen to room events
+  //       - ROOM_CLOSED -> emit room closed to every client
+  //       - ROOM_UPDATED -> emit updated basic room details
 }
