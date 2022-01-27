@@ -16,8 +16,17 @@ export class SocketClient {
     this.client.connect();
   }
 
-  public disconnect(): void {
-    this.client.disconnect();
+  public disconnect(): Promise<void> {
+    return new Promise((resolve) => {
+      const interval = setInterval(() => {
+        if (this.client.disconnected) {
+          clearInterval(interval);
+          resolve();
+        }
+      }, 1);
+
+      this.client.disconnect();
+    });
   }
 
   public async onConnected(): Promise<void | unknown> {

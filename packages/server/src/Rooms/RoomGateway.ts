@@ -80,12 +80,8 @@ export class RoomGateway implements OnGatewayConnection, OnGatewayDisconnect {
           throw new WsInvalidCredentials();
         }
 
-        // TODO: Remove user from room
-        // const userRooms = this.roomService.getRoomByUserID(decoded.id);
-        // userRooms.forEach((room) => room.removeUser(decoded.id));
-        // this.userService.removeUser(decoded.id);
-
         this.roomService.removeUser({ userID: decoded.id });
+        this.userService.removeUser(decoded.id);
       } catch (error) {
         if (error instanceof WsInvalidCredentials) {
           client.emit(RoomGatewaySocketErrors.INVALID_CREDENTIALS, {
@@ -110,11 +106,15 @@ export class RoomGateway implements OnGatewayConnection, OnGatewayDisconnect {
     // TODO: check if user is in a a room already
 
     const room = this.roomService.createRoom(user, this.server);
-    const { event: globalListRoomsEvent, data: globalListRoomsData } =
-      this.listRooms();
 
     // Let every client know that a new room as been created with the following data
-    socket.emit(globalListRoomsEvent, globalListRoomsData);
+    // Perhaps rework it to just let everyone know that this room has been created instead
+    // of emitting the whole list of rooms
+    socket.emit(RoomGatewayEvents.NEW_ROOM, {
+      roomID: room.roomID,
+      details: room.getBasicRoomDetails(),
+    });
+
     return new WsResponseCreateRoom(room);
   }
 
