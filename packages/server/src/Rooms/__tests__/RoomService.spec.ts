@@ -1,15 +1,29 @@
+import { Server, Socket } from 'socket.io';
 import { RoomService } from '../RoomService';
 import { CardService } from '../../Cards/CardService';
+import { User } from '../../User/User';
+import { MockSocket } from '../../../test/MockSocket';
 
 describe('RoomService', () => {
   let roomService: RoomService;
+  let server: Server;
 
   beforeEach(() => {
+    server = new Server();
     roomService = new RoomService(new CardService());
+
+    server.listen(3000);
+  });
+
+  afterEach(() => {
+    server.close();
   });
 
   describe('createRoom', () => {
-    it.todo('Should create a room wit.todoh valid user details');
+    it('Should create a room with valid user details', () => {
+      const user = new User('user', new MockSocket() as unknown as Socket);
+      const room = roomService.createRoom(user, server);
+    });
     it.todo('Shoudl throw an error when user is already in a room');
   });
 
