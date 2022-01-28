@@ -13,8 +13,21 @@ export class RoomService {
 
   constructor(private readonly cardService: CardService) {}
 
-  public listRooms(): IterableIterator<Room> {
-    return this.rooms.values();
+  public createRoom(user: User, server: Server): Room {
+    if (!!this.getRoomByUserID(user.id)) {
+      throw new UserInRoomError();
+    }
+
+    const room = new Room(user, server, this.cardService);
+
+    this.handleOutgoingRoomEvents(room);
+    this.rooms.set(room.roomID, room);
+
+    return room;
+  }
+
+  public listRooms(): Array<Room> {
+    return Array.from(this.rooms.values());
   }
 
   public getRoom(roomID: string): Room | undefined {
@@ -29,19 +42,6 @@ export class RoomService {
 
       return !!roomUser;
     });
-  }
-
-  public createRoom(user: User, server: Server): Room {
-    if (!!this.getRoomByUserID(user.id)) {
-      throw new UserInRoomError();
-    }
-
-    const room = new Room(user, server, this.cardService);
-
-    this.handleOutgoingRoomEvents(room);
-    this.rooms.set(room.roomID, room);
-
-    return room;
   }
 
   public removeRoom(roomID: string): void {

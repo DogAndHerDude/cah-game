@@ -16,10 +16,9 @@ import { PublicRoomEvents } from './RoomEvents';
 import { IBasicRoomDetails } from './IRoomBasicDetails';
 import { IRoomDetails } from './IRoomDetails';
 import { InternalRoomEvents } from './RoomEvents';
+import { UserExistsError } from './errors/UserExistsError';
 
 export class Room extends EventEmitter {
-  public static MAX_CARDS = 6;
-
   public readonly roomID: string = `room-${time()}`;
   private readonly users: Array<RoomUser> = [];
   private roomOwner: RoomUser;
@@ -45,7 +44,7 @@ export class Room extends EventEmitter {
 
   public addUser(user: User, spectator: boolean): void {
     if (this.userExists(user.id)) {
-      // throw error users already exists
+      throw new UserExistsError();
     }
 
     user.socket.join(this.roomID);
@@ -155,13 +154,10 @@ export class Room extends EventEmitter {
   private handleIncomingRoomEvents(socket: Socket): void {
     socket.on(
       PublicRoomEvents.CONFIG_UPDATE,
-      (data: Record<keyof IGameConfig, any>) => {
+      (data: Record<keyof IGameConfig, IGameConfig[keyof IGameConfig]>) => {
         // validate if owner
-        Object.keys(data).forEach((key) =>
-          this.updateConfig(
-            key as keyof IGameConfig,
-            data[key as keyof IGameConfig],
-          ),
+        Object.keys(data).forEach((key: keyof IGameConfig) =>
+          this.updateConfig(key, data[key]),
         );
         this.socketServer
           .in(this.roomID)

@@ -127,7 +127,7 @@ export class RoomGateway implements OnGatewayConnection, OnGatewayDisconnect {
   public listRooms(): WsResponseListRooms {
     return {
       event: RoomGatewayEvents.LIST_ROOMS,
-      data: Array.from(this.roomService.listRooms()).map((room) => {
+      data: this.roomService.listRooms().map((room) => {
         return {
           roomID: room.roomID,
           details: room.getBasicRoomDetails(),
