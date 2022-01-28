@@ -20,7 +20,7 @@ import { UserExistsError } from './errors/UserExistsError';
 
 export class Room extends EventEmitter {
   public readonly roomID: string = `room-${time()}`;
-  private readonly users: Array<RoomUser> = [];
+  private users: Array<RoomUser> = [];
   private roomOwner: RoomUser;
   private game: Game | null = null;
   private gameConfig: IGameConfig = new DefaultGameConfig();
@@ -81,7 +81,7 @@ export class Room extends EventEmitter {
       // notify -1 player
     }
 
-    this.users.filter((user) => {
+    this.users = this.users.filter((user) => {
       if (user.user.id !== userID) {
         return true;
       }

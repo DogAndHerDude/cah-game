@@ -36,9 +36,9 @@ export class RoomService {
 
   public getRoomByUserID(userID: string): Room | undefined {
     return Array.from(this.listRooms()).find((room) => {
-      const roomUser = room
-        .listUsers()
-        .find((roomUser) => roomUser.user.id === userID);
+      const roomUser = room.listUsers().find((roomUser) => {
+        return roomUser.user.id === userID;
+      });
 
       return !!roomUser;
     });
@@ -60,13 +60,13 @@ export class RoomService {
     return room;
   }
 
-  public removeUser({
+  public removeUser = ({
     userID,
     roomID,
   }: {
     userID: string;
     roomID?: string;
-  }): void {
+  }): void => {
     let room: Room | undefined;
 
     if (roomID) {
@@ -80,14 +80,14 @@ export class RoomService {
     }
 
     room.removeUser(userID);
-  }
+  };
+
+  private destroyRoom = (roomID: string): void => {
+    this.rooms.delete(roomID);
+  };
 
   private handleOutgoingRoomEvents(room: Room): void {
     room.on(InternalRoomEvents.ROOM_CLOSED, this.destroyRoom);
     room.on(InternalRoomEvents.USER_LEAVE, this.removeUser);
   }
-
-  private destroyRoom = (roomID: string): void => {
-    this.rooms.delete(roomID);
-  };
 }
