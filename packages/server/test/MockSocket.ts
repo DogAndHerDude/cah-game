@@ -1,4 +1,7 @@
+import uniqid from 'uniqid';
+
 export class MockSocket {
+  public id = uniqid();
   public eventStack = new Map<string, (arg: any) => void>();
 
   public join = jest.fn((room: string) => this);

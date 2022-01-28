@@ -44,10 +44,6 @@ export class RoomService {
     });
   }
 
-  public removeRoom(roomID: string): void {
-    this.rooms.delete(roomID);
-  }
-
   public addUser(user: User, roomID: string, spectator: boolean): Room {
     const room = this.getRoom(roomID);
 
