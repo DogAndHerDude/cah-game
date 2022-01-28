@@ -14,6 +14,7 @@ import { WsResponseCreateRoom } from '../DTO/WsResponseCreateRoom';
 import { IRoomDetails } from '../../Room/IRoomDetails';
 import { WsResponseListRooms } from '../DTO/WsListRoomsResponse';
 import { IBasicRoomDetails } from '../../Room/IRoomBasicDetails';
+import { WsUserInRoomError } from '../Errors/WsUserInRoomError';
 
 type UserServiceSpy = {
   createUser: jest.SpyInstance<ReturnType<UserService['createUser']>>;
@@ -201,10 +202,34 @@ describe('RoomGateway', () => {
         ),
       );
     });
+
+    it('Should throw an error when a player is already in a room', async () => {
+      const client = new SocketClient({
+        transports: ['websocket'],
+        query: {
+          name: 'user_name',
+        },
+      });
+
+      await client.onEvent(RoomGatewayEvents.AUTHENTICATED);
+      client.emit(RoomGatewayEvents.CREATE_ROOM);
+
+      const exceptionPromise = client.onEvent('exception');
+
+      client.emit(RoomGatewayEvents.CREATE_ROOM);
+
+      const exception = await exceptionPromise;
+
+      client.disconnect();
+      expect(exception).toStrictEqual({
+        status: 'error',
+        message: WsUserInRoomError.message,
+      });
+    });
   });
 
   describe('listRooms', () => {
-    it('Lists all available rooms on request', async () => {
+    it.only('Lists all available rooms on request', async () => {
       const createRoomClient = new SocketClient({
         transports: ['websocket'],
         query: {
@@ -214,7 +239,7 @@ describe('RoomGateway', () => {
       const listClient = new SocketClient({
         transports: ['websocket'],
         query: {
-          name: 'user_name',
+          name: 'user_name2',
         },
       });
 
@@ -222,9 +247,7 @@ describe('RoomGateway', () => {
         createRoomClient.onEvent(RoomGatewayEvents.AUTHENTICATED),
         listClient.onEvent(RoomGatewayEvents.AUTHENTICATED),
       ]);
-      console.log('Dang');
       createRoomClient.emit(RoomGatewayEvents.CREATE_ROOM);
-      console.log('Awaiting');
       await createRoomClient.onEvent(RoomGatewayEvents.ROOM_CREATED);
 
       const listRoomsPromise = listClient.onEvent<WsResponseListRooms>(
@@ -237,7 +260,7 @@ describe('RoomGateway', () => {
 
       createRoomClient.disconnect();
       listClient.disconnect();
-      expect(listRoomsResponse).toHaveLength(0);
+      expect(listRoomsResponse).toHaveLength(1);
       expect(listRoomsResponse).toStrictEqual([
         {
           roomID: expect.any(String),
@@ -246,6 +269,4 @@ describe('RoomGateway', () => {
       ]);
     });
   });
-
-  // TODO: joinRoom
 });

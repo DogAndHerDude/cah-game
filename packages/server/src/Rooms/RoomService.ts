@@ -32,6 +32,10 @@ export class RoomService {
   }
 
   public createRoom(user: User, server: Server): Room {
+    if (!!this.getRoomByUserID(user.id)) {
+      throw new UserInRoomError();
+    }
+
     const room = new Room(user, server, this.cardService);
 
     this.handleOutgoingRoomEvents(room);

@@ -97,25 +97,28 @@ export class RoomGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @UseGuards(SocketAuthGuard)
   @SubscribeMessage(RoomGatewayEvents.CREATE_ROOM)
   public createRoom(@ConnectedSocket() socket: Socket): WsResponseCreateRoom {
-    const user = this.userService.getUser((socket as any).decoded.id);
+    try {
+      const user = this.userService.getUser((socket as any).decoded.id);
 
-    if (!user) {
-      throw new WsUserNotFoundError();
+      if (!user) {
+        throw new WsUserNotFoundError();
+      }
+
+      const room = this.roomService.createRoom(user, this.server);
+
+      socket.emit(RoomGatewayEvents.NEW_ROOM, {
+        roomID: room.roomID,
+        details: room.getBasicRoomDetails(),
+      });
+
+      return new WsResponseCreateRoom(room);
+    } catch (error) {
+      if (error instanceof UserInRoomError) {
+        throw new WsUserInRoomError();
+      }
+
+      throw new WsException(error.message);
     }
-
-    // TODO: check if user is in a a room already
-
-    const room = this.roomService.createRoom(user, this.server);
-
-    // Let every client know that a new room as been created with the following data
-    // Perhaps rework it to just let everyone know that this room has been created instead
-    // of emitting the whole list of rooms
-    socket.emit(RoomGatewayEvents.NEW_ROOM, {
-      roomID: room.roomID,
-      details: room.getBasicRoomDetails(),
-    });
-
-    return new WsResponseCreateRoom(room);
   }
 
   @UseGuards(SocketAuthGuard)
