@@ -35,7 +35,7 @@ export class RoomService {
   }
 
   public getRoomByUserID(userID: string): Room | undefined {
-    return Array.from(this.listRooms()).find((room) => {
+    return this.listRooms().find((room) => {
       const roomUser = room.listUsers().find((roomUser) => {
         return roomUser.user.id === userID;
       });

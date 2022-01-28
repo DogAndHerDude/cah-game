@@ -8,11 +8,6 @@ export class MockServer {
   }
 
   in = jest.fn((room: string) => this);
-  to = jest.fn((id: string) => {
-    const socket = this.__sockets.get(id);
-
-    return socket;
-  });
   emit = jest.fn((event: string, data: any) => this);
 
   __addSockets(sockets: Array<MockSocket>): void {

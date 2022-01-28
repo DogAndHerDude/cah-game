@@ -31,7 +31,7 @@ export class Room extends EventEmitter {
     private readonly cardService: CardService,
   ) {
     super();
-    this.roomOwner = new RoomUser(user, false, user.socket);
+    this.roomOwner = new RoomUser(user, false);
 
     user.socket.join(this.roomID);
     this.users.push(this.roomOwner);
@@ -49,13 +49,10 @@ export class Room extends EventEmitter {
 
     user.socket.join(this.roomID);
     this.handleIncomingRoomEvents(user.socket);
-    this.users.push(new RoomUser(user, spectator, user.socket));
+    this.users.push(new RoomUser(user, spectator));
     this.socketServer.in(this.roomID).emit(PublicRoomEvents.NEW_USER, {
       userID: user.id,
       name: user.name,
-    });
-    this.socketServer.to(user.socket.id).emit(PublicRoomEvents.CONFIG_UPDATE, {
-      gameConfig: this.gameConfig,
     });
     // TODO: emit updated room details with new player count
   }
@@ -63,6 +60,7 @@ export class Room extends EventEmitter {
   public removeUser(userID: string): void {
     if (this.users.length === 1) {
       this.users[0].socket.leave(this.roomID);
+      this.users = [];
       this.emit(InternalRoomEvents.ROOM_CLOSED, this.roomID);
       return;
     }
@@ -136,7 +134,6 @@ export class Room extends EventEmitter {
 
   private startGame(): void {
     if (this.game) {
-      // TODO: throw error that the game has started
       return;
     }
 
@@ -158,7 +155,9 @@ export class Room extends EventEmitter {
     socket.on(
       PublicRoomEvents.CONFIG_UPDATE,
       (data: Record<keyof IGameConfig, IGameConfig[keyof IGameConfig]>) => {
-        // validate if owner
+        if ((socket as any).decoded.id !== this.roomOwner.user.id) {
+          return;
+        }
         Object.keys(data).forEach((key: keyof IGameConfig) =>
           this.updateConfig(key, data[key]),
         );
@@ -168,8 +167,11 @@ export class Room extends EventEmitter {
       },
     );
     socket.on(PublicRoomEvents.START_GAME, () => {
-      // validate if owner
-      // handle thrown error with error response
+      if ((socket as any).decoded?.id !== this.roomOwner.user.id) {
+        socket.to(this.roomID).emit('exception', 'Unauthorized');
+        return;
+      }
+
       this.startGame();
     });
     socket.on(PublicRoomEvents.USER_LEAVE, () => {

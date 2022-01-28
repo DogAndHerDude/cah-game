@@ -7,11 +7,11 @@ export interface IPlainRoomUser {
 }
 
 export class RoomUser {
-  constructor(
-    public readonly user: User,
-    public readonly spectator: boolean,
-    public readonly socket: Socket,
-  ) {}
+  public socket: Socket;
+
+  constructor(public readonly user: User, public readonly spectator: boolean) {
+    this.socket = user.socket;
+  }
 
   public toPlain(): IPlainRoomUser {
     return {
