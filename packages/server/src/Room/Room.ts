@@ -156,11 +156,14 @@ export class Room extends EventEmitter {
       PublicRoomEvents.CONFIG_UPDATE,
       (data: Record<keyof IGameConfig, IGameConfig[keyof IGameConfig]>) => {
         if ((socket as any).decoded.id !== this.roomOwner.user.id) {
+          socket.to(this.roomID).emit('exception', 'Unauthorized');
           return;
         }
+
         Object.keys(data).forEach((key: keyof IGameConfig) =>
           this.updateConfig(key, data[key]),
         );
+
         this.socketServer
           .in(this.roomID)
           .emit(PublicRoomEvents.CONFIG_UPDATE, this.gameConfig);
@@ -184,14 +187,24 @@ export class Room extends EventEmitter {
 
   private handleIncomingGameEvents(socket: Socket): void {
     socket.on(GameEvents.PLAYER_CARD_PLAYED, (data) => {
-      if (this.game) {
-        this.game.playCard(data.userID, data.card);
+      if (!(socket as any).decoded.id) {
+        socket.to(this.roomID).emit('exception', 'Unauthorized');
+        return;
+      }
+
+      try {
+        this.game?.playCard((socket as any).decoded.id, data.card);
+      } catch (error) {
+        socket.to(this.roomID).emit('exception', error.message);
       }
     });
     socket.on(GameEvents.PLAYED_CARD_PICK, (data) => {
-      if (this.game) {
-        this.game.playCard(data.userID, data.card);
+      if (!(socket as any).decoded.id) {
+        socket.to(this.roomID).emit('exception', 'Unauthorized');
+        return;
       }
+
+      this.game?.pickCard((socket as any).decoded.id, data.card);
     });
   }
 

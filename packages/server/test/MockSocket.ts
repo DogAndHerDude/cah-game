@@ -1,4 +1,5 @@
 import uniqid from 'uniqid';
+import { Socket } from 'socket.io';
 
 export class MockSocket {
   public id = uniqid();
@@ -12,9 +13,14 @@ export class MockSocket {
   public on = jest.fn((event: string, callback: (args: any) => void) => {
     this.eventStack.set(event, callback);
   });
-  __emitToSelf = (event: string, data?: any) => {
+
+  public __emitToSelf(event: string, data?: any) {
     const callback = this.eventStack.get(event);
 
     callback && callback(data);
-  };
+  }
+
+  public __asSocket(): Socket {
+    return this as unknown as Socket;
+  }
 }

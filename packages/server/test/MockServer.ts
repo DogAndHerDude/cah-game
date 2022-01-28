@@ -1,3 +1,4 @@
+import { Server } from 'socket.io';
 import { MockSocket } from './MockSocket';
 
 export class MockServer {
@@ -16,5 +17,9 @@ export class MockServer {
 
   __clear(): void {
     this.__sockets.clear();
+  }
+
+  __asServer(): Server {
+    return this as unknown as Server;
   }
 }
