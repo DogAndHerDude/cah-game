@@ -347,5 +347,103 @@ describe('Room', () => {
     });
   });
 
-  describe('outgoing game events', () => {});
+  describe('outgoing game events', () => {
+    it('Should call socket emit when emitting HAND_OUT_CARDDS', () => {
+      const socket = new MockSocket();
+      const user = new User('user', socket.__asSocket());
+      const room = new Room(
+        user,
+        server as unknown as Server,
+        new CardService(),
+      );
+      room['game'] = {
+        events: new Map(),
+        on(event, callback) {
+          this.events.set(event, callback);
+        },
+        emit(event, data) {
+          this.events.get(event)(data);
+        },
+      } as unknown as Game;
+
+      room['handleOutgoingGameEvents']();
+      room['game'].emit(GameEvents.HAND_OUT_CARDS, {
+        [user.id]: [{ key: 'value' }],
+      });
+      expect(socket.to).toHaveBeenLastCalledWith(room.roomID);
+      expect(socket.emit).toHaveBeenCalledWith(GameEvents.HAND_OUT_CARDS, {
+        whiteCards: [{ key: 'value' }],
+      });
+    });
+
+    it.each([
+      {
+        event: GameEvents.GAME_STARTED,
+      },
+      {
+        event: GameEvents.ROUND_STARTED,
+        data: { key: 'value' },
+      },
+      {
+        event: GameEvents.PLAYER_CARD_PLAYED,
+        data: { key: 'value' },
+      },
+      {
+        event: GameEvents.PLAY_ENDED,
+        data: { key: 'value' },
+      },
+      {
+        event: GameEvents.PICK_STARTED,
+        data: { key: 'value' },
+      },
+      {
+        event: GameEvents.PICK_ENDED,
+        data: { key: 'value' },
+      },
+      {
+        event: GameEvents.ROUND_ENDED,
+        data: { key: 'value' },
+      },
+      {
+        event: GameEvents.GAME_ENDED,
+        data: { key: 'value' },
+      },
+    ])('Should emit all GameEvents with the given data', (testData) => {
+      const socket = new MockSocket();
+      const user = new User('user', socket.__asSocket());
+      const room = new Room(
+        user,
+        server as unknown as Server,
+        new CardService(),
+      );
+      room['game'] = {
+        events: new Map(),
+        on(event, callback) {
+          this.events.set(event, callback);
+        },
+        emit(event, data) {
+          this.events.get(event)(data);
+        },
+      } as unknown as Game;
+
+      room['handleOutgoingGameEvents']();
+
+      if (testData.data) {
+        room['game'].emit(testData.event, testData.data);
+      } else {
+        room['game'].emit(testData.event);
+      }
+
+      expect(server.in).toHaveBeenLastCalledWith(room.roomID);
+
+      if (testData.data) {
+        expect(server.emit).toHaveBeenLastCalledWith(
+          testData.event,
+          testData.data,
+        );
+      } else {
+        expect(server.emit).toHaveBeenLastCalledWith(testData.event);
+      }
+    });
+  });
 });
