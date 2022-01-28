@@ -62,7 +62,9 @@ export class Room extends EventEmitter {
 
   public removeUser(userID: string): void {
     if (this.users.length === 1) {
+      this.users[0].socket.leave(this.roomID);
       this.emit(InternalRoomEvents.ROOM_CLOSED, this.roomID);
+      return;
     }
 
     if (userID === this.roomOwner.user.id) {
@@ -84,7 +86,7 @@ export class Room extends EventEmitter {
         return true;
       }
 
-      user.socket.leave(`room-${this.roomID}`);
+      user.socket.leave(this.roomID);
       return false;
     });
   }
@@ -135,6 +137,7 @@ export class Room extends EventEmitter {
   private startGame(): void {
     if (this.game) {
       // TODO: throw error that the game has started
+      return;
     }
 
     this.game = new Game(

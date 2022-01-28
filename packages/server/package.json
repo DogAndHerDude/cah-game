@@ -37,6 +37,7 @@
     "@nestjs/platform-express": "^8.2.3",
     "@nestjs/platform-socket.io": "^8.2.3",
     "@nestjs/websockets": "^8.2.3",
+    "class-validator": "^0.13.2",
     "npm": "^8.1.4",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
