@@ -8,12 +8,12 @@ import { NameTakenError } from './NameTakenError';
 export class UserService {
   private readonly users = new Map<string, User>();
 
-  public createUser(name: string, socket: Socket, id?: string): User {
+  public createUser(name: string, socket: Socket): User {
     if (this.isUserNameTaken(name)) {
       throw new NameTakenError();
     }
 
-    const user = new User(name, socket, id);
+    const user = new User(name, socket, socket.id);
 
     this.users.set(user.id, user);
 

@@ -219,7 +219,7 @@ export class Room extends EventEmitter {
     this.game.on(GameEvents.HAND_OUT_CARDS, (data) =>
       Object.entries(data).forEach(([userID, whiteCards]) => {
         const user = this.users.find((roomUser) => roomUser.user.id === userID);
-        console.log('Piss ass nigga:');
+
         if (!user) {
           return;
         }
