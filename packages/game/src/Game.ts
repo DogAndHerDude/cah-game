@@ -108,7 +108,11 @@ export class Game extends EventEmitter {
     }
   }
 
-  public pickCard(card: string): void {
+  public pickCard(playerID: string, card: string): void {
+    if (playerID !== this.cardCzar) {
+      return;
+    }
+
     const cardCzar = this.players.find(({ id }) => id === this.cardCzar);
     const winningPlayer = this.players.find(
       (player) => player.getCardInPlay() === card

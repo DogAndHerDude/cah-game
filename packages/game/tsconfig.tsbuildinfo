@@ -212,8 +212,8 @@
         "affectsGlobalScope": false
       },
       "./src/defaultgameconfig.ts": {
-        "version": "f3c44bd6276cb9254e7cb955a94d9ef439e7f9fe718e4c3eda1d10e4408b98dc",
-        "signature": "bab61f5e2743638a73ed071d98d95d8d74ddb6b6285864728124ce75ac8482ff",
+        "version": "899a87257e2c669ad3fdac68234d7edf84aeaa7f6da39c4dc075d018341d96b9",
+        "signature": "c9e25480883cc967a6eba6dad29e792810163c9657ea471ce4e8037180299434",
         "affectsGlobalScope": false
       },
       "./node_modules/@types/lodash/common/common.d.ts": {
@@ -342,8 +342,8 @@
         "affectsGlobalScope": false
       },
       "./src/game.ts": {
-        "version": "eb5f8cac387c748a308b966d2220896292aa7feb3c2adc6b6a34e1e1fb38f031",
-        "signature": "cc9c92473a70c33485773dbcbf03fb5aa40292124d84a67975d060ee619e52ba",
+        "version": "7a095ef244400d068ad23b780706859ec2b4c11ba5d9a24dcb1c742e9c3ef01e",
+        "signature": "f30d9ebd3ecad722dd9e56bcf9169349c17b0a5f2f953ad2f6c71fb676ead75b",
         "affectsGlobalScope": false
       },
       "./src/index.ts": {
@@ -745,7 +745,9 @@
     "options": {
       "incremental": true,
       "target": 4,
-      "lib": [],
+      "lib": [
+        "lib.es2020.d.ts"
+      ],
       "module": 1,
       "declaration": true,
       "sourceMap": true,
