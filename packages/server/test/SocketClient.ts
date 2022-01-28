@@ -42,7 +42,7 @@ export class SocketClient {
     });
   }
 
-  public emit(event: string, data?: any): void {
+  public emit<T = any>(event: string, data?: T): void {
     this.client.emit(event, data);
   }
 }

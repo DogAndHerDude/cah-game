@@ -1,5 +1,4 @@
-import { DefaultGameConfig } from '../../../game/DefaultGameConfig';
-import { IGameDetails } from '../../../game/IGameDetails';
+import { DefaultGameConfig, IGameDetails } from '@cah-game/game';
 import { IPlainRoomUser } from './RoomUser';
 
 export interface IRoomDetails extends Partial<IGameDetails> {

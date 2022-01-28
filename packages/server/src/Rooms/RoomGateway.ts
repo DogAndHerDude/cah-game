@@ -20,13 +20,14 @@ import { RoomGatewaySocketErrors } from './RoomGatewayErrors';
 import { NameTakenError } from '../User/NameTakenError';
 import { WsInvalidCredentials } from '../Guards/WsInvalidCredentials';
 import { WsRoomNotFoundError } from './Errors/WsRoomNotFoundError';
-import { WsResponseCreateRoom } from './DTO/WsResponseCreateRoom';
+import { WsCreateRoomResponse } from './DTO/WsCreateRoomResponse';
 import { WsUserNotFoundError } from './Errors/WsUserNotFoundError';
 import { WsResponseListRooms } from './DTO/WsListRoomsResponse';
 import { JoinRoomDTO } from './DTO/JoinRoomDTO';
 import { RoomNotFoundError } from './Errors/RoomNotFoundError';
 import { UserInRoomError } from './Errors/UserInRoomError';
 import { WsUserInRoomError } from './Errors/WsUserInRoomError';
+import { WsJoinRoomResponse } from './DTO/WsJoinRoomResponse';
 
 @WebSocketGateway({ transports: ['websocket'] })
 export class RoomGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -96,7 +97,7 @@ export class RoomGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @UseGuards(SocketAuthGuard)
   @SubscribeMessage(RoomGatewayEvents.CREATE_ROOM)
-  public createRoom(@ConnectedSocket() socket: Socket): WsResponseCreateRoom {
+  public createRoom(@ConnectedSocket() socket: Socket): WsCreateRoomResponse {
     try {
       const user = this.userService.getUser((socket as any).decoded.id);
 
@@ -111,7 +112,7 @@ export class RoomGateway implements OnGatewayConnection, OnGatewayDisconnect {
         details: room.getBasicRoomDetails(),
       });
 
-      return new WsResponseCreateRoom(room);
+      return new WsCreateRoomResponse(room);
     } catch (error) {
       if (error instanceof UserInRoomError) {
         throw new WsUserInRoomError();
@@ -140,7 +141,7 @@ export class RoomGateway implements OnGatewayConnection, OnGatewayDisconnect {
   public joinRoom(
     @ConnectedSocket() socket: Socket,
     @MessageBody() data: JoinRoomDTO,
-  ): WsResponse<unknown> {
+  ): WsJoinRoomResponse {
     const user = this.userService.getUser(
       socket.handshake.query.userID as string,
     );
@@ -152,11 +153,7 @@ export class RoomGateway implements OnGatewayConnection, OnGatewayDisconnect {
     try {
       const room = this.roomService.addUser(user, data.roomID, data.spectator);
 
-      // return room data such as users, etc
-      return {
-        event: RoomGatewayEvents.ROOM_JOINED,
-        data: room.getRoomDetails(),
-      };
+      return new WsJoinRoomResponse(room);
     } catch (error) {
       if (error instanceof RoomNotFoundError) {
         throw new WsRoomNotFoundError();

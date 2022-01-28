@@ -4,4 +4,5 @@ export interface IGameConfig {
   maxPoints: number;
   packs: Array<number>;
   maxPlayers: number;
+  maxCards: number;
 }

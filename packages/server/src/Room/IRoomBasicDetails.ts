@@ -1,5 +1,4 @@
-import { IGameConfig } from '../../../game/IGameConfig';
-import { IGameSummary } from '../../../game/IGameSummary';
+import { IGameConfig, IGameSummary } from '@cah-game/game';
 
 export interface IBasicRoomDetails
   extends Partial<IGameSummary>,

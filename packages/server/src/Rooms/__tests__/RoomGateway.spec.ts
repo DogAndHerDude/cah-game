@@ -10,11 +10,13 @@ import { UserModule } from '../../User/UserModule';
 import { CardModule } from '../../Cards/CardModule';
 import { SocketClient } from '../../../test/SocketClient';
 import { RoomGatewaySocketErrors } from '../RoomGatewayErrors';
-import { WsResponseCreateRoom } from '../DTO/WsResponseCreateRoom';
+import { WsCreateRoomResponse } from '../DTO/WsCreateRoomResponse';
 import { IRoomDetails } from '../../Room/IRoomDetails';
 import { WsResponseListRooms } from '../DTO/WsListRoomsResponse';
 import { IBasicRoomDetails } from '../../Room/IRoomBasicDetails';
 import { WsUserInRoomError } from '../Errors/WsUserInRoomError';
+import { JoinRoomDTO } from '../DTO/JoinRoomDTO';
+import { WsJoinRoomResponse } from '../DTO/WsJoinRoomResponse';
 
 type UserServiceSpy = {
   createUser: jest.SpyInstance<ReturnType<UserService['createUser']>>;
@@ -32,6 +34,15 @@ const basicRoomDetails = {
   inProgress: expect.any(Boolean),
   maxPlayers: expect.any(Number),
   users: expect.any(Number),
+};
+
+const roomDetails = {
+  roomID: expect.any(String),
+  config: {
+    ...new DefaultGameConfig(),
+  },
+  logs: expect.any(Array),
+  users: expect.any(Array),
 };
 
 describe('RoomGateway', () => {
@@ -160,7 +171,7 @@ describe('RoomGateway', () => {
   });
 
   describe('createRoom', () => {
-    it('Should create a room and return its details & NEW_ROOM event', async () => {
+    it.only('Should create a room and return its details & NEW_ROOM event', async () => {
       const client = new SocketClient({
         transports: ['websocket'],
         query: {
@@ -171,17 +182,17 @@ describe('RoomGateway', () => {
       await client.onEvent(RoomGatewayEvents.AUTHENTICATED);
       client.emit(RoomGatewayEvents.CREATE_ROOM);
 
-      const newRoomMessage = client.onEvent<WsResponseCreateRoom['data']>(
+      const newRoomMessage = client.onEvent<WsCreateRoomResponse['data']>(
         RoomGatewayEvents.NEW_ROOM,
       );
-      const roomCreated = client.onEvent<WsResponseCreateRoom['data']>(
+      const roomCreated = client.onEvent<WsCreateRoomResponse['data']>(
         RoomGatewayEvents.ROOM_CREATED,
       );
       const [newRoomResponse, response] = await Promise.all([
         newRoomMessage,
         roomCreated,
       ]);
-
+      console.log(newRoomResponse);
       client.disconnect();
       expect(response).toStrictEqual(
         expect.objectContaining<IRoomDetails>({
@@ -194,12 +205,10 @@ describe('RoomGateway', () => {
         }),
       );
       expect(newRoomResponse).toStrictEqual(
-        expect.objectContaining<{ roomID: string; details: IBasicRoomDetails }>(
-          {
-            roomID: expect.any(String),
-            details: basicRoomDetails,
-          },
-        ),
+        expect.objectContaining({
+          roomID: expect.any(String),
+          details: basicRoomDetails,
+        }),
       );
     });
 
@@ -229,7 +238,7 @@ describe('RoomGateway', () => {
   });
 
   describe('listRooms', () => {
-    it.only('Lists all available rooms on request', async () => {
+    it('Lists all available rooms on request', async () => {
       const createRoomClient = new SocketClient({
         transports: ['websocket'],
         query: {
@@ -267,6 +276,54 @@ describe('RoomGateway', () => {
           details: basicRoomDetails,
         },
       ]);
+    });
+  });
+
+  describe('joinRoom', () => {
+    it.only('Should join an existing room', async () => {
+      const createRoomClient = new SocketClient({
+        transports: ['websocket'],
+        query: {
+          name: 'user_name',
+        },
+      });
+      const joinRoomClient = new SocketClient({
+        transports: ['websocket'],
+        query: {
+          name: 'user_name2',
+        },
+      });
+
+      await Promise.all([
+        createRoomClient.onEvent(RoomGatewayEvents.AUTHENTICATED),
+        joinRoomClient.onEvent(RoomGatewayEvents.AUTHENTICATED),
+      ]);
+
+      createRoomClient.emit(RoomGatewayEvents.CREATE_ROOM);
+
+      const joinRoomResponsePromise =
+        joinRoomClient.onEvent<WsJoinRoomResponse>(
+          RoomGatewayEvents.ROOM_JOINED,
+        );
+      const createRoomResponse =
+        await createRoomClient.onEvent<WsCreateRoomResponse>(
+          RoomGatewayEvents.ROOM_CREATED,
+        );
+
+      joinRoomClient.emit<JoinRoomDTO>(RoomGatewayEvents.JOIN_ROOM, {
+        roomID: createRoomResponse.data.roomID,
+        spectator: false,
+      });
+
+      const joinRoomResponse = await joinRoomResponsePromise;
+
+      expect(joinRoomResponse).toStrictEqual<WsJoinRoomResponse>({
+        event: RoomGatewayEvents.ROOM_JOINED,
+        data: {
+          ...roomDetails,
+          roomID: createRoomResponse.data.roomID,
+        },
+      });
     });
   });
 });
