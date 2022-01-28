@@ -1,4 +1,4 @@
-import { IGameConfig } from './IGameConfig';
+import { IGameConfig } from "./IGameConfig";
 
 export class DefaultGameConfig implements IGameConfig {
   constructor(
@@ -6,7 +6,6 @@ export class DefaultGameConfig implements IGameConfig {
     public readonly pickTimer = 60000,
     public readonly maxPoints = 12,
     public readonly packs = [0],
-    public readonly maxPlayers = 12,
-    public readonly maxCards = 6,
+    public readonly maxPlayers = 12
   ) {}
 }

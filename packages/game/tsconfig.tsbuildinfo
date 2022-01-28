@@ -36,26 +36,6 @@
         "signature": "94b4108552f078722078d7c4a010ca4851063882f6c0c51a1468aa7a39aed4b3",
         "affectsGlobalScope": false
       },
-      "../../../../../../usr/local/lib/node_modules/typescript/lib/lib.dom.d.ts": {
-        "version": "9affb0a2ddc57df5b8174c0af96c288d697a262e5bc9ca1f544c999dc64a91e6",
-        "signature": "9affb0a2ddc57df5b8174c0af96c288d697a262e5bc9ca1f544c999dc64a91e6",
-        "affectsGlobalScope": true
-      },
-      "../../../../../../usr/local/lib/node_modules/typescript/lib/lib.dom.iterable.d.ts": {
-        "version": "fb0c09b697dc42afa84d1587e3c994a2f554d2a45635e4f0618768d16a86b69a",
-        "signature": "fb0c09b697dc42afa84d1587e3c994a2f554d2a45635e4f0618768d16a86b69a",
-        "affectsGlobalScope": true
-      },
-      "../../../../../../usr/local/lib/node_modules/typescript/lib/lib.webworker.importscripts.d.ts": {
-        "version": "7fac8cb5fc820bc2a59ae11ef1c5b38d3832c6d0dfaec5acdb5569137d09a481",
-        "signature": "7fac8cb5fc820bc2a59ae11ef1c5b38d3832c6d0dfaec5acdb5569137d09a481",
-        "affectsGlobalScope": true
-      },
-      "../../../../../../usr/local/lib/node_modules/typescript/lib/lib.scripthost.d.ts": {
-        "version": "097a57355ded99c68e6df1b738990448e0bf170e606707df5a7c0481ff2427cd",
-        "signature": "097a57355ded99c68e6df1b738990448e0bf170e606707df5a7c0481ff2427cd",
-        "affectsGlobalScope": true
-      },
       "../../../../../../usr/local/lib/node_modules/typescript/lib/lib.es2015.core.d.ts": {
         "version": "63e0cc12d0f77394094bd19e84464f9840af0071e5b9358ced30511efef1d8d2",
         "signature": "63e0cc12d0f77394094bd19e84464f9840af0071e5b9358ced30511efef1d8d2",
@@ -201,11 +181,6 @@
         "signature": "89bf2b7a601b73ea4311eda9c41f86a58994fec1bee3b87c4a14d68d9adcdcbd",
         "affectsGlobalScope": true
       },
-      "../../../../../../usr/local/lib/node_modules/typescript/lib/lib.es2017.full.d.ts": {
-        "version": "d2f31f19e1ba6ed59be9259d660a239d9a3fcbbc8e038c6b2009bde34b175fed",
-        "signature": "d2f31f19e1ba6ed59be9259d660a239d9a3fcbbc8e038c6b2009bde34b175fed",
-        "affectsGlobalScope": false
-      },
       "./src/cardnotfounderror.ts": {
         "version": "0f2d73c0b3fb2c9412ca37b3fbb2245f4fcab40a409710f2f27ff6bc25335e7f",
         "signature": "036e92bb07114bace15b0dd8a214f7c3b3c64278857c93e6e9ef09a4ebf8f10a",
@@ -237,8 +212,8 @@
         "affectsGlobalScope": false
       },
       "./src/defaultgameconfig.ts": {
-        "version": "a1e0d77f13ac8f671a3d8cff814bd017bdb327e414920d6505d6878450466d3b",
-        "signature": "6964b6b5a482e40439e5366f5f8ba15f334d2624ee190c6bbe6f69c49f278b48",
+        "version": "f3c44bd6276cb9254e7cb955a94d9ef439e7f9fe718e4c3eda1d10e4408b98dc",
+        "signature": "bab61f5e2743638a73ed071d98d95d8d74ddb6b6285864728124ce75ac8482ff",
         "affectsGlobalScope": false
       },
       "./node_modules/@types/lodash/common/common.d.ts": {
@@ -367,7 +342,7 @@
         "affectsGlobalScope": false
       },
       "./src/game.ts": {
-        "version": "e9a1ae58b62a4118539a5dafb2ade6ed3a6be2048248bf980cfe7695f5693f94",
+        "version": "eb5f8cac387c748a308b966d2220896292aa7feb3c2adc6b6a34e1e1fb38f031",
         "signature": "cc9c92473a70c33485773dbcbf03fb5aa40292124d84a67975d060ee619e52ba",
         "affectsGlobalScope": false
       },
@@ -377,7 +352,7 @@
         "affectsGlobalScope": false
       },
       "./src/testutils/gamerunner.ts": {
-        "version": "7170730472faf6738396a63320d2c07363aa10a1f1c53cb330419f4e6ef33010",
+        "version": "d0b21325b455a9d60f3231af320eb454980427f6e06be8b13c150862346bb6e5",
         "signature": "543119d20cca51829941228998fc172edc888875d6f662b49bd2b90204fdefef",
         "affectsGlobalScope": false
       },
@@ -770,11 +745,12 @@
     "options": {
       "incremental": true,
       "target": 4,
+      "lib": [],
       "module": 1,
       "declaration": true,
       "sourceMap": true,
       "composite": true,
-      "strict": true,
+      "strict": false,
       "moduleResolution": 2,
       "baseUrl": "..",
       "esModuleInterop": true,
@@ -1529,12 +1505,6 @@
         "./src/index.ts",
         "./src/player.ts"
       ],
-      "../../../../../../usr/local/lib/node_modules/typescript/lib/lib.dom.d.ts": [
-        "./node_modules/@types/node/util.d.ts"
-      ],
-      "../../../../../../usr/local/lib/node_modules/typescript/lib/lib.dom.iterable.d.ts": [
-        "./node_modules/@types/node/util.d.ts"
-      ],
       "../../../../../../usr/local/lib/node_modules/typescript/lib/lib.es2015.collection.d.ts": [
         "./node_modules/@types/node/util.d.ts"
       ],
@@ -1572,9 +1542,6 @@
         "./node_modules/@types/node/util.d.ts"
       ],
       "../../../../../../usr/local/lib/node_modules/typescript/lib/lib.es2017.d.ts": [
-        "./node_modules/@types/node/util.d.ts"
-      ],
-      "../../../../../../usr/local/lib/node_modules/typescript/lib/lib.es2017.full.d.ts": [
         "./node_modules/@types/node/util.d.ts"
       ],
       "../../../../../../usr/local/lib/node_modules/typescript/lib/lib.es2017.intl.d.ts": [
@@ -1644,12 +1611,6 @@
         "./node_modules/@types/node/util.d.ts"
       ],
       "../../../../../../usr/local/lib/node_modules/typescript/lib/lib.esnext.intl.d.ts": [
-        "./node_modules/@types/node/util.d.ts"
-      ],
-      "../../../../../../usr/local/lib/node_modules/typescript/lib/lib.scripthost.d.ts": [
-        "./node_modules/@types/node/util.d.ts"
-      ],
-      "../../../../../../usr/local/lib/node_modules/typescript/lib/lib.webworker.importscripts.d.ts": [
         "./node_modules/@types/node/util.d.ts"
       ]
     },
@@ -2343,12 +2304,6 @@
         "./src/index.ts",
         "./src/player.ts"
       ],
-      "../../../../../../usr/local/lib/node_modules/typescript/lib/lib.dom.d.ts": [
-        "./node_modules/@types/node/util.d.ts"
-      ],
-      "../../../../../../usr/local/lib/node_modules/typescript/lib/lib.dom.iterable.d.ts": [
-        "./node_modules/@types/node/util.d.ts"
-      ],
       "../../../../../../usr/local/lib/node_modules/typescript/lib/lib.es2015.collection.d.ts": [
         "./node_modules/@types/node/util.d.ts"
       ],
@@ -2386,9 +2341,6 @@
         "./node_modules/@types/node/util.d.ts"
       ],
       "../../../../../../usr/local/lib/node_modules/typescript/lib/lib.es2017.d.ts": [
-        "./node_modules/@types/node/util.d.ts"
-      ],
-      "../../../../../../usr/local/lib/node_modules/typescript/lib/lib.es2017.full.d.ts": [
         "./node_modules/@types/node/util.d.ts"
       ],
       "../../../../../../usr/local/lib/node_modules/typescript/lib/lib.es2017.intl.d.ts": [
@@ -2458,12 +2410,6 @@
         "./node_modules/@types/node/util.d.ts"
       ],
       "../../../../../../usr/local/lib/node_modules/typescript/lib/lib.esnext.intl.d.ts": [
-        "./node_modules/@types/node/util.d.ts"
-      ],
-      "../../../../../../usr/local/lib/node_modules/typescript/lib/lib.scripthost.d.ts": [
-        "./node_modules/@types/node/util.d.ts"
-      ],
-      "../../../../../../usr/local/lib/node_modules/typescript/lib/lib.webworker.importscripts.d.ts": [
         "./node_modules/@types/node/util.d.ts"
       ]
     },
@@ -2580,8 +2526,6 @@
       "./src/iplainplayer.ts",
       "./src/player.ts",
       "./src/testutils/gamerunner.ts",
-      "../../../../../../usr/local/lib/node_modules/typescript/lib/lib.dom.d.ts",
-      "../../../../../../usr/local/lib/node_modules/typescript/lib/lib.dom.iterable.d.ts",
       "../../../../../../usr/local/lib/node_modules/typescript/lib/lib.es2015.collection.d.ts",
       "../../../../../../usr/local/lib/node_modules/typescript/lib/lib.es2015.core.d.ts",
       "../../../../../../usr/local/lib/node_modules/typescript/lib/lib.es2015.d.ts",
@@ -2595,7 +2539,6 @@
       "../../../../../../usr/local/lib/node_modules/typescript/lib/lib.es2016.array.include.d.ts",
       "../../../../../../usr/local/lib/node_modules/typescript/lib/lib.es2016.d.ts",
       "../../../../../../usr/local/lib/node_modules/typescript/lib/lib.es2017.d.ts",
-      "../../../../../../usr/local/lib/node_modules/typescript/lib/lib.es2017.full.d.ts",
       "../../../../../../usr/local/lib/node_modules/typescript/lib/lib.es2017.intl.d.ts",
       "../../../../../../usr/local/lib/node_modules/typescript/lib/lib.es2017.object.d.ts",
       "../../../../../../usr/local/lib/node_modules/typescript/lib/lib.es2017.sharedmemory.d.ts",
@@ -2618,9 +2561,7 @@
       "../../../../../../usr/local/lib/node_modules/typescript/lib/lib.es2020.string.d.ts",
       "../../../../../../usr/local/lib/node_modules/typescript/lib/lib.es2020.symbol.wellknown.d.ts",
       "../../../../../../usr/local/lib/node_modules/typescript/lib/lib.es5.d.ts",
-      "../../../../../../usr/local/lib/node_modules/typescript/lib/lib.esnext.intl.d.ts",
-      "../../../../../../usr/local/lib/node_modules/typescript/lib/lib.scripthost.d.ts",
-      "../../../../../../usr/local/lib/node_modules/typescript/lib/lib.webworker.importscripts.d.ts"
+      "../../../../../../usr/local/lib/node_modules/typescript/lib/lib.esnext.intl.d.ts"
     ]
   },
   "version": "3.9.5"

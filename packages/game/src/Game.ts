@@ -188,7 +188,7 @@ export class Game extends EventEmitter {
   }
 
   private endPlay(): void {
-    clearTimeout(Number(this.roundTimer));
+    clearTimeout(this.roundTimer);
 
     const playedCards = this.players
       .filter(({ id }) => id !== this.cardCzar)
@@ -215,7 +215,7 @@ export class Game extends EventEmitter {
   }
 
   private endPick(): void {
-    clearTimeout(Number(this.pickTimer));
+    clearTimeout(this.pickTimer);
     this.postRoundHandler();
   }
 
@@ -278,9 +278,9 @@ export class Game extends EventEmitter {
   }
 
   private cleanupTimers(): void {
-    clearTimeout(Number(this.startTimer));
-    clearTimeout(Number(this.roundTimer));
-    clearTimeout(Number(this.pickTimer));
+    clearTimeout(this.startTimer);
+    clearTimeout(this.roundTimer);
+    clearTimeout(this.pickTimer);
   }
 
   private playerReachedMaxPoints(): boolean {

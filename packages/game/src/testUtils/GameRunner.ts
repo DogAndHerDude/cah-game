@@ -47,7 +47,7 @@ export class GameRunner {
       this.game.startRound();
       this.game.on(GameEvents.GAME_ENDED, () => {
         (Game as any).TIMER_BETWEEN_ROUNDS = this.originalTimerBetweenRounds;
-        clearTimeout(Number(timeout));
+        clearTimeout(timeout);
         resolve(this.events);
       });
       timeout = setTimeout(() => {
