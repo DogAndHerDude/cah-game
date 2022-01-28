@@ -10,19 +10,18 @@ describe("GameDeck", () => {
   });
 
   describe("getWhiteCards", () => {
-    it("Maps the deck and returns specified amount of expected white cards from a given deck", () => {
-      const tests = [
-        {
-          packs: [0],
-          whiteCardCount: 2,
-        },
-        {
-          packs: [1, 2],
-          whiteCardCount: 4,
-        },
-      ];
-
-      tests.forEach(({ packs, whiteCardCount }) => {
+    it.each([
+      {
+        packs: [0],
+        whiteCardCount: 2,
+      },
+      {
+        packs: [1, 2],
+        whiteCardCount: 4,
+      },
+    ])(
+      "Maps the deck and returns specified amount of expected white cards from a given deck",
+      ({ packs, whiteCardCount }) => {
         const deck = cardService.getDeck(packs);
         const gameDeck = new GameDeck(deck);
         const preDrawWhiteCardLength = gameDeck.listWhiteCards().length;
@@ -48,22 +47,21 @@ describe("GameDeck", () => {
             );
           })
         ).toBeUndefined();
-      });
-    });
+      }
+    );
   });
 
   describe("getBlackCard", () => {
-    it("Maps and returns a single black card from a given deck", () => {
-      const tests = [
-        {
-          packs: [0],
-        },
-        {
-          packs: [1, 2],
-        },
-      ];
-
-      tests.forEach(({ packs }) => {
+    it.each([
+      {
+        packs: [0],
+      },
+      {
+        packs: [1, 2],
+      },
+    ])(
+      "Maps and returns a single black card from a given deck",
+      ({ packs }) => {
         const deck = cardService.getDeck(packs);
         const gameDeck = new GameDeck(deck);
         const preDrawDeck = gameDeck.listBlackCards();
@@ -76,7 +74,7 @@ describe("GameDeck", () => {
         expect(preDrawDeck.find(cardMatcher)).toBe(blackCard);
         expect(gameDeck.listBlackCards()).toHaveLength(preDrawDeck.length - 1);
         expect(gameDeck.listBlackCards().find(cardMatcher)).toBeUndefined();
-      });
-    });
+      }
+    );
   });
 });
