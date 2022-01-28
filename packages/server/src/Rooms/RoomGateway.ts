@@ -107,7 +107,7 @@ export class RoomGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
       const room = this.roomService.createRoom(user, this.server);
 
-      socket.emit(RoomGatewayEvents.NEW_ROOM, {
+      this.server.emit(RoomGatewayEvents.NEW_ROOM, {
         roomID: room.roomID,
         details: room.getBasicRoomDetails(),
       });
