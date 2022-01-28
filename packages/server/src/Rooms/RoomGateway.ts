@@ -142,9 +142,7 @@ export class RoomGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() socket: Socket,
     @MessageBody() data: JoinRoomDTO,
   ): WsJoinRoomResponse {
-    const user = this.userService.getUser(
-      socket.handshake.query.userID as string,
-    );
+    const user = this.userService.getUser((socket as any).decoded.id);
 
     if (!user) {
       throw new WsException('User not found');

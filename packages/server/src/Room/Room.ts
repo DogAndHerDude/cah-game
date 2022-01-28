@@ -62,7 +62,6 @@ export class Room extends EventEmitter {
   }
 
   public removeUser(userID: string): void {
-    console.log('Bruh');
     if (this.users.length === 1) {
       this.emit(InternalRoomEvents.ROOM_CLOSED, this.roomID);
     }

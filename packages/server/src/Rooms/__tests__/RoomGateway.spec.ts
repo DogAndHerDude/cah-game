@@ -17,6 +17,7 @@ import { IBasicRoomDetails } from '../../Room/IRoomBasicDetails';
 import { WsUserInRoomError } from '../Errors/WsUserInRoomError';
 import { JoinRoomDTO } from '../DTO/JoinRoomDTO';
 import { WsJoinRoomResponse } from '../DTO/WsJoinRoomResponse';
+import { WsRoomNotFoundError } from '../Errors/WsRoomNotFoundError';
 
 type UserServiceSpy = {
   createUser: jest.SpyInstance<ReturnType<UserService['createUser']>>;
@@ -171,7 +172,7 @@ describe('RoomGateway', () => {
   });
 
   describe('createRoom', () => {
-    it.only('Should create a room and return its details & NEW_ROOM event', async () => {
+    it('Should create a room and return its details & NEW_ROOM event', async () => {
       const client = new SocketClient({
         transports: ['websocket'],
         query: {
@@ -192,7 +193,7 @@ describe('RoomGateway', () => {
         newRoomMessage,
         roomCreated,
       ]);
-      console.log(newRoomResponse);
+
       client.disconnect();
       expect(response).toStrictEqual(
         expect.objectContaining<IRoomDetails>({
@@ -280,7 +281,7 @@ describe('RoomGateway', () => {
   });
 
   describe('joinRoom', () => {
-    it.only('Should join an existing room', async () => {
+    it('Should join an existing room', async () => {
       const createRoomClient = new SocketClient({
         transports: ['websocket'],
         query: {
@@ -298,31 +299,84 @@ describe('RoomGateway', () => {
         createRoomClient.onEvent(RoomGatewayEvents.AUTHENTICATED),
         joinRoomClient.onEvent(RoomGatewayEvents.AUTHENTICATED),
       ]);
-
       createRoomClient.emit(RoomGatewayEvents.CREATE_ROOM);
 
-      const joinRoomResponsePromise =
-        joinRoomClient.onEvent<WsJoinRoomResponse>(
-          RoomGatewayEvents.ROOM_JOINED,
-        );
-      const createRoomResponse =
-        await createRoomClient.onEvent<WsCreateRoomResponse>(
-          RoomGatewayEvents.ROOM_CREATED,
-        );
+      const joinRoomResponsePromise = joinRoomClient.onEvent<
+        WsJoinRoomResponse['data']
+      >(RoomGatewayEvents.ROOM_JOINED);
+      const createRoomResponse = await createRoomClient.onEvent<
+        WsCreateRoomResponse['data']
+      >(RoomGatewayEvents.ROOM_CREATED);
 
       joinRoomClient.emit<JoinRoomDTO>(RoomGatewayEvents.JOIN_ROOM, {
-        roomID: createRoomResponse.data.roomID,
+        roomID: createRoomResponse.roomID,
         spectator: false,
       });
 
       const joinRoomResponse = await joinRoomResponsePromise;
 
-      expect(joinRoomResponse).toStrictEqual<WsJoinRoomResponse>({
-        event: RoomGatewayEvents.ROOM_JOINED,
-        data: {
-          ...roomDetails,
-          roomID: createRoomResponse.data.roomID,
+      createRoomClient.disconnect();
+      joinRoomClient.disconnect();
+      expect(joinRoomResponse).toStrictEqual<WsJoinRoomResponse['data']>({
+        ...roomDetails,
+        roomID: createRoomResponse.roomID,
+      });
+    });
+
+    it('Should throw error when room is not found', async () => {
+      const client = new SocketClient({
+        transports: ['websocket'],
+        query: {
+          name: 'user_name',
         },
+      });
+
+      await client.onEvent(RoomGatewayEvents.AUTHENTICATED);
+
+      client.emit<JoinRoomDTO>(RoomGatewayEvents.JOIN_ROOM, {
+        roomID: 'bad-id',
+        spectator: false,
+      });
+
+      const error = await client.onEvent<{ status: 'error'; message: string }>(
+        'exception',
+      );
+
+      client.disconnect();
+      expect(error).toStrictEqual<typeof error>({
+        status: 'error',
+        message: WsRoomNotFoundError.message,
+      });
+    });
+
+    it('Should throw an error when user is already in a room', async () => {
+      const client = new SocketClient({
+        transports: ['websocket'],
+        query: {
+          name: 'user_name',
+        },
+      });
+
+      await client.onEvent(RoomGatewayEvents.AUTHENTICATED);
+      client.emit(RoomGatewayEvents.CREATE_ROOM);
+
+      const room = await client.onEvent<WsCreateRoomResponse['data']>(
+        RoomGatewayEvents.ROOM_CREATED,
+      );
+
+      client.emit<JoinRoomDTO>(RoomGatewayEvents.JOIN_ROOM, {
+        roomID: room.roomID,
+        spectator: false,
+      });
+
+      const error = await client.onEvent<{ status: 'error'; message: string }>(
+        'exception',
+      );
+
+      client.disconnect();
+      expect(error).toStrictEqual<typeof error>({
+        status: 'error',
+        message: WsUserInRoomError.message,
       });
     });
   });
