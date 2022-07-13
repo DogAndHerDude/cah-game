@@ -1,0 +1,1 @@
+{"version":3,"file":"PlayerDoesNotExistError.js","sourceRoot":"","sources":["../../src/Errors/PlayerDoesNotExistError.ts"],"names":[],"mappings":";;;AAAA,MAAa,uBAAwB,SAAQ,KAAK;IAGhD;QACE,KAAK,CAAC,uBAAuB,CAAC,OAAO,CAAC,CAAC;QACvC,IAAI,CAAC,IAAI,GAAG,IAAI,CAAC,WAAW,CAAC,IAAI,CAAC;IACpC,CAAC;;AANH,0DAOC;AANe,+BAAO,GAAW,uBAAuB,CAAC"}

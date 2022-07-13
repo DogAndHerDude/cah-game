@@ -1,0 +1,1 @@
+{"version":3,"file":"DefaultGameConfig.js","sourceRoot":"","sources":["../src/DefaultGameConfig.ts"],"names":[],"mappings":";;;AAEA,MAAa,iBAAiB;IAC5B,YACS,aAAa,KAAK,EAClB,YAAY,KAAK,EACjB,YAAY,EAAE,EACd,QAAQ,EAAE,EACV,aAAa,EAAE;QAJf,eAAU,GAAV,UAAU,CAAQ;QAClB,cAAS,GAAT,SAAS,CAAQ;QACjB,cAAS,GAAT,SAAS,CAAK;QACd,UAAK,GAAL,KAAK,CAAK;QACV,eAAU,GAAV,UAAU,CAAK;IACrB,CAAC;CACL;AARD,8CAQC"}

@@ -1,0 +1,1 @@
+{"version":3,"file":"TooFewPlayersError.js","sourceRoot":"","sources":["../../src/Errors/TooFewPlayersError.ts"],"names":[],"mappings":";;;AAAA,MAAa,kBAAmB,SAAQ,KAAK;IAG3C,YAAY,OAAe,EAAE,QAAgB;QAC3C,KAAK,CAAC,GAAG,kBAAkB,CAAC,OAAO,KAAK,OAAO,WAAW,QAAQ,EAAE,CAAC,CAAC;QACtE,IAAI,CAAC,IAAI,GAAG,IAAI,CAAC,WAAW,CAAC,IAAI,CAAC;IACpC,CAAC;;AANH,gDAOC;AANe,0BAAO,GAAW,iBAAiB,CAAC"}
